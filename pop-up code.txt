@@ -1,0 +1,227 @@
+(html) 
+<!-- Modal Popup -->
+         <div id="popupModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>Submission Details</h2>
+                <div id="popupContent"></div>
+                <div class="modal-buttons">
+                    <button onclick="confirmSubmission()">Submit</button>
+                    <button onclick="closeModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+(css)
+.modal {
+  display: none; 
+  position: fixed; 
+  z-index: 1000; 
+  padding-top: 100px; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0,0,0,0.4); 
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 30px;
+  border: 1px solid #888;
+  width: 50%;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.close:hover {
+  color: black;
+}
+
+.modal-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.modal-buttons button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.modal-buttons button:first-child {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.modal-buttons button:last-child {
+  background-color: #f44336;
+  color: white;
+}
+
+.modal-buttons button:hover {
+  opacity: 0.9;
+}
+
+(js)
+function showPopup(details) {
+  const popupContent = document.getElementById("popupContent");
+  popupContent.innerHTML = details;
+  document.getElementById("popupModal").style.display = "block";
+}
+
+function closeModal() {
+  document.getElementById("popupModal").style.display = "none";
+}
+
+// Get selected employee details from the table
+function getSelectedEmployees() {
+  const rows = document.querySelectorAll("tbody tr");
+  let selected = [];
+
+  rows.forEach(row => {
+    const checkbox = row.querySelector('input[type="checkbox"]');
+    if (checkbox && checkbox.checked) {
+      const cells = row.querySelectorAll("td");
+      const employee = {
+        id: cells[1].innerText,
+        name: cells[2].innerText,
+        department: cells[3].innerText
+      };
+      selected.push(employee);
+    }
+  });
+
+  return selected;
+}
+
+function formatEmployeesList(employees) {
+  if (employees.length === 0) return "<p><em>No employees selected.</em></p>";
+  return `
+    <table style="width:100%; border-collapse: collapse;" border="1">
+      <tr><th>ID</th><th>Name</th><th>Department</th></tr>
+      ${employees.map(emp => `
+        <tr>
+          <td>${emp.id}</td>
+          <td>${emp.name}</td>
+          <td>${emp.department}</td>
+        </tr>`).join("")}
+    </table>
+  `;
+}
+let lastSubmissionDetails = "";
+
+function submitAddReporties(event) {
+  event.preventDefault();
+  const data = new FormData(event.target);
+  const reportingTo = data.get("reportingTo");
+  const method = data.get("method");
+  const selectedEmployees = getSelectedEmployees();
+
+  let employeeDetails = selectedEmployees.length === 0
+    ? "No employees selected."
+    : selectedEmployees.map(emp => `${emp.name} (${emp.department})`).join("\n");
+
+  lastSubmissionDetails = 
+    `Submission Successful (Add Reporties)\n` +
+    `Reporting To: ${reportingTo}\n` +
+    `Method: ${method}\n` +
+    `Selected Employees:\n${employeeDetails}`;
+
+  showPopup(`
+  <p><strong>Reporting To:</strong> ${reportingTo}</p>
+  <p><strong>Method:</strong> ${method}</p>
+  <p><strong>Selected Employees:</strong></p>
+  ${formatEmployeesList(selectedEmployees)}
+`);
+
+}
+
+
+function submitTransferReporties(event) {
+  event.preventDefault();
+  const data = new FormData(event.target);
+  const transferTo = data.get("transferTo");
+  const reportingTo = data.get("reportingTo");
+  const method = data.get("method");
+  const selectedEmployees = getSelectedEmployees();
+
+  let employeeDetails = selectedEmployees.length === 0
+    ? "No employees selected."
+    : selectedEmployees.map(emp => `${emp.name} (${emp.department})`).join("\n");
+
+  lastSubmissionDetails = 
+    `Submission Successful (Transfer Reporties)\n` +
+    `Transfer To: ${transferTo}\n` +
+    `Reporting To: ${reportingTo}\n` +
+    `Method: ${method}\n` +
+    `Selected Employees:\n${employeeDetails}`;
+
+  showPopup(`
+  <p><strong>Transfer To:</strong> ${transferTo}</p>
+  <p><strong>Reporting To:</strong> ${reportingTo}</p>
+  <p><strong>Method:</strong> ${method}</p>
+  <p><strong>Selected Employees:</strong></p>
+  ${formatEmployeesList(selectedEmployees)}
+`);
+
+}
+
+
+function filterEmployees() {
+  const nameFilter = document.getElementById("searchName").value.toLowerCase();
+  const deptFilter = document.getElementById("searchDept").value.toLowerCase();
+
+  const rows = document.querySelectorAll("tbody tr");
+
+  rows.forEach(row => {
+    const name = row.cells[2].innerText.toLowerCase();
+    const dept = row.cells[3].innerText.toLowerCase();
+
+    const nameMatch = name.includes(nameFilter);
+    const deptMatch = dept.includes(deptFilter);
+
+    if (nameMatch && deptMatch) {
+      row.style.display = "";
+    } else {
+      row.style.display = "none";
+    }
+  });
+}
+function confirmSubmission() {
+  closeModal();
+
+  // Show clean, formatted plain-text message
+  alert(lastSubmissionDetails);
+
+  // Reset all forms
+  document.getElementById("addReportiesForm").reset();
+  document.getElementById("transferReportiesForm").reset();
+  document.getElementById("employeeListForm").reset();
+
+  // Clear checkbox selection and row highlights
+  document.querySelectorAll("tbody tr").forEach(row => {
+    row.classList.remove("selected-row");
+    const checkbox = row.querySelector('input[type="checkbox"]');
+    if (checkbox) checkbox.checked = false;
+  });
+}
+
+function stripHtmlTags(html) {
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent || tempDiv.innerText || "";
+}
