@@ -353,7 +353,7 @@ function getSelectedEmployeeDetails() {
     const selected = [];
     document.querySelectorAll('.employee-table tbody input[type="checkbox"]:checked').forEach(cb => {
         const row = cb.closest('tr');
-        const name = row.children[3].textContent.trim();
+        const name = row.children[3].textContent.trim() + ' ' + row.children[4].textContent.trim();
         const dept = row.children[5].textContent.trim();
         const id = row.querySelector('.employee-id').textContent.trim();
         selected.push(`${id}|${name} (${dept})`);
@@ -375,9 +375,9 @@ function showModal(type, data) {
     const [idPart, rest] = emp.split('|');
     const [name, dept] = rest.split('(');
     return `<tr>
-        <td>${idPart}</td>
-        <td>${name.trim()}</td>
-        <td>${dept.replace(')', '').trim()}</td>
+        <td style="text-align: center;">${idPart}</td>
+        <td style="text-align: center;">${name}</td>
+        <td style="text-align: center;">${dept.replace(')', '')}</td>
     </tr>`;
 }).join(""); 
 
@@ -386,9 +386,9 @@ function showModal(type, data) {
         <table style="width: 100%; border-collapse: collapse;">
   <thead>
     <tr style="background-color: #f2f2f2;">
-      <th style="padding: 8px; text-align: left;">ID</th>
-      <th style="padding: 8px; text-align: left;">Employee Name</th>
-      <th style="padding: 8px; text-align: left;">Department</th>
+      <th style="padding: 8px; text-align: center;">ID</th>
+      <th style="padding: 8px; text-align: center;">Employee Name</th>
+      <th style="padding: 8px; text-align: center;">Department</th>
     </tr>
   </thead>
   <tbody>
@@ -400,10 +400,10 @@ function showModal(type, data) {
 
     // Compose full modal content
     body.innerHTML = `
-        <p><strong>Report To:</strong> ${data.manager}</p>
-        ${type === "copy" ? `<p><strong>Transfer To:</strong> ${data.newmanager}</p>` : ""}
-        <p><strong>Method:</strong> ${data.method}</p>
-        <p><strong>Selected Employees:</strong></p>
+        <p style="margin-bottom: 10px;"><strong>Report To:</strong> ${data.manager}</p>
+        ${type === "copy" ? `<p style="margin-bottom: 10px;"><strong>Transfer To:</strong> ${data.newmanager}</p><` : ""}
+        <p style="margin-bottom: 10px;"><strong>Method:</strong> ${data.method}</p>
+        <p style="margin-bottom: 10px;"><strong>Selected Employees:</strong></p>
         ${tableHTML}
     `;
 
@@ -461,8 +461,8 @@ document.getElementById('copy-report-form').addEventListener('submit', function(
     <h3 id="modal-title"></h3>
     <div id="modal-body"></div>
     <div class="modal-actions">
-      <button id="modal-submit" class="btn btn-primary">Submit</button>
       <button id="modal-cancel" class="btn btn-secondary">Cancel</button>
+      <button id="modal-submit" class="btn btn-primary">Submit</button>
     </div>
   </div>
 </div>
@@ -910,14 +910,14 @@ body{
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.4);
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .modal-content {
-  background-color: #fff;
+  background-color: #ffffff;
   padding: 30px;
   border-radius: 12px;
   width: 500px;
@@ -928,7 +928,6 @@ body{
 .modal-content h3 {
   margin-bottom: 16px;
 }
-
 .modal-actions {
   margin-top: 20px;
   display: flex;
